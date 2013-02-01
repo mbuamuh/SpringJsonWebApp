@@ -14,11 +14,6 @@ public class MoviesComponent {
 	
 	private String url;
 	
-//	public MoviesComponent(String url){
-//		this.url = url;
-//	}
-	
-	
 	public String getMovie(){
 		
 		String movie = null;
@@ -30,11 +25,6 @@ public class MoviesComponent {
 		HttpEntity entity = response.getEntity();
 		ObjectMapper mapper = new ObjectMapper();
 		movie = mapper.readValue(entity.getContent(), String.class);
-		//entity.g
-		
-//		HttpParams httpParams = response.getParams();
-//		movie = (String) httpParams.getParameter("name");
-	
 	} catch (Exception e) {
 		movie = "localUrl";
 	} 
