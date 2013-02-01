@@ -9,16 +9,25 @@ import javax.ws.rs.Produces;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.sample.components.MoviesComponent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 @Produces("application/json")
 @Path(value = "/mvc/json")
 public class MoviesResource {
+	
+	private List<String> favouriteMovies;
+	
+	@Autowired
+	MoviesComponent moviesComponent;
 
 	public MoviesResource() {
 		insertFavouriteMovies();
 	}
 
-	private List<String> favouriteMovies;
+
 
 	private List<String> insertFavouriteMovies() {
 		favouriteMovies = new ArrayList<String>();
@@ -41,7 +50,31 @@ public class MoviesResource {
 	 * @return 
 	 */
 	@GET
-	public String getRandomMovie() {
+	public String getMovie() {
+		String jsonMovie = getMovieFromRemoteServer();
+			if(jsonMovie=="localUrl"){	
+				jsonMovie=getRandomMovieFromList(); 
+			}
+			if(jsonMovie.isEmpty()){
+				jsonMovie=getRandomMovieFromList(); 
+			}
+		return jsonMovie;
+	}
+
+
+
+	private String getMovieFromRemoteServer() {
+		ApplicationContext context =
+			    new ClassPathXmlApplicationContext(("spring.xml"));
+		moviesComponent = (MoviesComponent) context.getBean("moviesComponent");
+	    moviesComponent.setUrl("http://ec2-54-247-59-172.eu-west-1.compute.amazonaws.com/mvc/json");
+	 String movie = moviesComponent.getMovie();
+		return movie;
+	}
+
+
+
+	private String getRandomMovieFromList() {
 		Random random = new Random();
 		int i = random.nextInt(10);
 		String randomMovie = favouriteMovies.get(i);
@@ -51,8 +84,10 @@ public class MoviesResource {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		String jsonMovie = jsonObject.toString(); 
+		String jsonMovie = jsonObject.toString();
 		return jsonMovie;
 	}
+	
+	
 
 }
